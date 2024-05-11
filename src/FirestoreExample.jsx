@@ -10,6 +10,10 @@ import Carousel from 'react-bootstrap/Carousel';
 import { RiStarFill } from 'react-icons/ri'; 
 import { FaShoppingBag } from 'react-icons/fa';
 import Footer from './Footer';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Load the Stripe.js library with your publishable API key
+const stripePromise = loadStripe('pk_test_51PF3CWFONVWUdgyARjgw3LRF4OWotcvcefs77Co9uQS0sg4r1LSuKilfs4G2AH9cqg8czeED9ZHiLSxLjqq8ZRTP00r6d6Igh6');
 
 
 const firebaseConfig = {

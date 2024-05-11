@@ -1,3 +1,4 @@
+// 
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
@@ -8,6 +9,46 @@ import { useLocation } from 'react-router-dom';
 import { FaCartPlus } from 'react-icons/fa';
 import Footer from './Footer';
 import MyNavbar from './MyNavbar';
+
+import { loadStripe } from '@stripe/stripe-js';
+
+// Load the Stripe.js library with your publishable API key
+const stripePromise = loadStripe('pk_test_51PF3CWFONVWUdgyARjgw3LRF4OWotcvcefs77Co9uQS0sg4r1LSuKilfs4G2AH9cqg8czeED9ZHiLSxLjqq8ZRTP00r6d6Igh6'); // Replace with your publishable key
+const handleCheckout= async (product) => {
+const stripe = await stripePromise;
+const name = product.name;
+const price =product.price*100;
+// Send a request to the backend to create a checkout session
+  const response = await fetch('http://localhost:4000/create-checkout-session', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ name, price }), // Send product name and price to the backend
+});
+
+if (response.ok) {
+  // If the request is successful, retrieve the session ID from the response
+  const session = await response.json();
+
+  // Redirect the user to the Stripe Checkout page using the session ID
+  const result = await stripe.redirectToCheckout({ sessionId: session.id });
+
+  if (result.error) {
+    // If there is an error during the redirect, display the error message
+    setError(result.error.message);
+  }
+} else {
+  // If there is an error creating the checkout session, display an error message
+  setError('Error creating checkout session');
+}
+
+
+// Handle the change event when the user enters a product name
+const handleProductNameChange = (event) => {
+setProductName(event.target.value);
+};
+}
 
 const ProductDetail = () => {
   const { productId } = useParams(); // Get the productId from the URL
@@ -21,6 +62,13 @@ const ProductDetail = () => {
   if (!product) {
     return <div>Product not found</div>;
   }
+
+  // Define the handleCheckout function
+  // const handleCheckout = (product) => {
+    
+  //   console.log('Checkout clicked for product:', product);
+  //   // Redirect to a checkout page, update cart state, etc.
+  // };
 
   return (
     <>
@@ -40,9 +88,9 @@ const ProductDetail = () => {
               <hr />
               <p><strong>Price:</strong> ${product.price}</p>
               <p><strong>Category:</strong> {product.category}</p>
+              <button onClick={() => handleCheckout(product)}>Checkout</button>
             </div>
           </div>
-         
         </Col>
       </Row>
     </Container>
